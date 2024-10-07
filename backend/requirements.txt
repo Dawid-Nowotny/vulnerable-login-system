@@ -1,0 +1,2 @@
+fastapi[standard]
+psycopg2==2.9.9
