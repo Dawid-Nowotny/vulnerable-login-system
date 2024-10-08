@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <p>Email: ${email}</p>
       `;
 
-      axios.post('https://127.0.0.1:8000/login', {
-        email: email,
+      axios.post('http://127.0.0.1:8000/user/login', {
+        username: email,
         password: password
       })
       .then(function (response) {
