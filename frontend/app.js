@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
   
+      document.getElementById('data').innerHTML = `
+        <p>Wysłane dane:</p>
+        <p>Email: ${email}</p>
+      `;
+
       axios.post('https://127.0.0.1:8000/login', {
         email: email,
         password: password
