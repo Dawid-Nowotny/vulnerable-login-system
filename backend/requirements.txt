@@ -1,2 +1,4 @@
 fastapi[standard]
-psycopg2==2.9.9
+passlib==1.7.4
+bcrypt==4.2.0
+asyncpg==0.29.0
