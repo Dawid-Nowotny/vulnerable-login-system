@@ -2,7 +2,7 @@ import asyncpg
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 
-from .schemas import UserCreate
+from .schemas import UserCreate, UserLogin
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -20,15 +20,14 @@ async def check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Conn
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tala nazwa użytkownika lub email juz istnieje!"
+            detail="Taka nazwa użytkownika lub email juz istnieje!"
         )
 
 async def register_user(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
     hashed_password = hash_password(user_data.password)
     await check_user_exists(user_data, conn)
-
     query = f"INSERT INTO users (username, email, password) VALUES ('{user_data.username}', '{user_data.email}', '{hashed_password}')"
-    
+        
     try:
         await conn.execute(query)
     except Exception as e:
@@ -36,3 +35,16 @@ async def register_user(user_data: UserCreate, conn: asyncpg.connection.Connecti
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Nieoczekiwany błąd serwera: {str(e)}"
         )
+
+async def login_user(user_data: UserLogin, conn: asyncpg.connection.Connection) -> tuple[str, str, str]:
+    query = f"SELECT * FROM users WHERE (username = '{user_data.username}' OR email = '{user_data.username}')"
+
+    user = await conn.fetchrow(query)
+
+    if not user or not verify_password(user_data.password, user['password']):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nieprawidłowe dane logowania!"
+        )
+    
+    return user['id'], user['username'], user['email']
