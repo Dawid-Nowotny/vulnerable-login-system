@@ -2,7 +2,7 @@ import asyncpg
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 
-from .schemas import UserCreate, UserLogin
+from .schemas import UserCreate, UserLogin, UserResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -48,3 +48,8 @@ async def login_user(user_data: UserLogin, conn: asyncpg.connection.Connection) 
         )
     
     return user['id'], user['username'], user['email']
+
+async def get_all_users(conn: asyncpg.connection.Connection) -> list[UserResponse]:
+    query = "SELECT id, username, email FROM users"
+    users = await conn.fetch(query)
+    return [UserResponse(id=user['id'], username=user['username'], email=user['email']) for user in users]

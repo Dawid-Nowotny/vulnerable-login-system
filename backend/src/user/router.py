@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
-from .schemas import UserCreate, UserLogin
-from .service import register_user, login_user
+from .schemas import UserCreate, UserLogin, UserResponse
+from .service import register_user, login_user, get_all_users
 from database import get_db_connection
 
 router = APIRouter()
@@ -23,3 +23,7 @@ async def login(user: UserLogin, conn = Depends(get_db_connection)):
         "username": username,
         "email": email
         }
+
+@router.get("/users", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
+async def list_users(conn=Depends(get_db_connection)):
+    return await get_all_users(conn)
