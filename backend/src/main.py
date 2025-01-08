@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from user import router as user_router
 
+from config import get_secure_mode
+from middlewares.input_sanitization_middleware import InputSanitizationMiddleware
+
 app = FastAPI()
 
 origins = [
@@ -14,5 +17,8 @@ app.add_middleware(
     allow_origins=origins,
     allow_methods=["*"],
 )
+
+if get_secure_mode():
+    app.add_middleware(InputSanitizationMiddleware)
 
 app.include_router(user_router.router, prefix='/user', tags=['user'])
