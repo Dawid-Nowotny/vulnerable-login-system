@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 if get_secure_mode():
-    app.add_middleware(SecurityHeadersProtectionMiddleware)
+    #app.add_middleware(SecurityHeadersProtectionMiddleware)
     app.add_middleware(InputSanitizationMiddleware)
 
 app.include_router(user_router.router, prefix='/user', tags=['user'])
