@@ -1,26 +1,46 @@
 document.addEventListener('DOMContentLoaded', function() {
   let secureMode = false;
 
+  const page = window.location.pathname.split('/').pop();
+
+  
+
   axios.get('https://127.0.0.1:8000/user/secure-mode') 
     .then(function (response) {
       secureMode = response.data.secure_mode;
-      app(secureMode);
+      switch (page) {
+        case 'index.html':
+          app(secureMode);
+          break;
+    
+        case 'register.html':
+          register(secureMode);
+          break;
+    
+        default:
+          app(secureMode);
+      }
     })
     .catch(function () {
       secureMode = false; 
-      app(secureMode);
+      switch (page) {
+        case 'index.html':
+          app(secureMode);
+          break;
+    
+        case 'register.html':
+          register(secureMode);
+          break;
+    
+        default:
+          app(secureMode);
+      }
     });
 });
 
 function app(secureMode) {
   console.log(secureMode ? 'Tryb bezpieczny włączony' : 'Tryb bezpieczny wyłączony');
   const baseUrl = secureMode ? 'https://127.0.0.1:8000/user' : 'http://127.0.0.1:8000/user';
-
-  if (secureMode) {
-    document.getElementById('captchaContent').style.display = 'block';
-  } else {
-    document.getElementById('captchaContent').style.display = 'none';
-  }
 
   document.getElementById('refreshCaptcha').addEventListener('click', function() {
     generateCaptcha();
@@ -39,17 +59,21 @@ function app(secureMode) {
     document.getElementById('data').innerHTML = `
       <div class="welcome-message">Witaj, ${localStorage.getItem('username')}!</div><br />
     `;
-
-
     return;
   } else {
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('loginContent').style.display = 'none';
+  }
+
+  if (secureMode) {
+    document.getElementById('captchaContent').style.display = 'block';
     generateCaptcha();
+  } else {
+    document.getElementById('captchaContent').style.display = 'none';
   }
 
   document.getElementById('loginButton').addEventListener('click', function() {
-    const email = document.getElementById('email').value;
+    const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const userCaptcha = document.getElementById('captchaInput').value;
 
@@ -59,22 +83,76 @@ function app(secureMode) {
     }
 
     axios.post(`${baseUrl}/login`, {
-      username: email,
+      username: username,
       password: password
     })
     .then(function(response) {
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('username', response.data.username); 
-      document.getElementById('loginForm').style.display = 'none';
       document.getElementById('message').innerHTML = `<div class="message-bar-success">Zalogowano pomyślnie!</div>`;
+      document.getElementById('loginForm').style.display = 'none';
       window.location.reload();
     })
     .catch(function(error) {
-      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Nieprawidłowy email lub hasło</div>`;
+      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Nieprawidłowa nazwa użytkownika lub hasło</div>`;
     }); 
   });
+}
 
-  
+function register(secureMode) {
+  const baseUrl = secureMode ? 'https://127.0.0.1:8000/user' : 'http://127.0.0.1:8000/user';
+
+  if (secureMode) {
+    document.getElementById('captchaContent').style.display = 'block';
+    generateCaptcha();
+  } else {
+    document.getElementById('captchaContent').style.display = 'none';
+  }
+
+  if (localStorage.getItem('isLoggedIn') === 'true') {
+    window.location.href = 'index.html';
+    return;
+  } 
+
+  document.getElementById('refreshCaptcha').addEventListener('click', function() {
+    generateCaptcha();
+  });
+
+  document.getElementById('registerButton').addEventListener('click', function() {
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
+    const userCaptcha = document.getElementById('captchaInput').value;
+
+    if(!username || !email || !password || !passwordConfirm || !userCaptcha) {
+      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Musisz wypełnić wszystkie pola!</div>`;
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Musisz wpisać identyczne hasła!</div>`;
+      return;
+    }
+
+    if (userCaptcha !== captchaCode && secureMode) {
+      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Niepoprawny kod CAPTCHA!</div>`;
+      return;
+    }
+
+    axios.post(`${baseUrl}/register`, {
+      username: username,
+      email: email,
+      password: password
+    })
+    .then(function(response) {
+      document.getElementById('message').innerHTML = `<div class="message-bar-success">Zarejestrowano pomyślnie!</div>`;
+      window.location.href = 'index.html';
+    })
+    .catch(function(error) {
+      document.getElementById('message').innerHTML = `<div class="message-bar-failed">Wystąpił błąd podczas rejestracji!</div>`;
+    }); 
+  });
 }
 
 let captchaCode = '';

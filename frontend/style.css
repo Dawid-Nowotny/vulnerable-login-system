@@ -33,6 +33,11 @@ a, a:link, a:hover, a:active {
     width: 550px;
  }
 
+ #registerForm {
+    text-align: center;
+    width: 550px;
+ }
+
  #loginContent {
     width:100%;
     display: none;
