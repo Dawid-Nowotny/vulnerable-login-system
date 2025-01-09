@@ -1,8 +1,15 @@
 import asyncpg
 from fastapi import HTTPException, status
+from fastapi.responses import FileResponse
 from passlib.context import CryptContext
 
+import os
+from datetime import datetime
+
 from .schemas import UserCreate, UserLogin, UserResponse
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+USER_LOGS_DIR = os.path.join(BASE_DIR, "..\\user_logs")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -53,3 +60,18 @@ async def get_all_users(conn: asyncpg.connection.Connection) -> list[UserRespons
     query = "SELECT id, username, email FROM users"
     users = await conn.fetch(query)
     return [UserResponse(id=user['id'], username=user['username'], email=user['email']) for user in users]
+
+def log_action(username: str, action: str) -> None:
+    log_file_path = os.path.join(USER_LOGS_DIR, f"{username}.txt")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"{timestamp} - {action}\n"
+
+    with open(log_file_path, "a") as log_file:
+        log_file.write(log_entry)
+
+def get_user_log(filename: str) -> FileResponse:
+    file_path = os.path.join(USER_LOGS_DIR, filename)
+    print(file_path)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+    return FileResponse(file_path)
