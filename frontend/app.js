@@ -69,10 +69,17 @@ function app(secureMode) {
         let userHTML = '<table class="listTable">';
         userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
         users.forEach(user => {
-          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>guzik</td></tr>`;
+          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
         });
         userHTML += '</table>';
         userList.innerHTML = userHTML;
+
+        document.querySelectorAll('.logButton').forEach(button => {
+          button.addEventListener('click', function () {
+            const username = this.getAttribute('data-username');
+            showLogs(username, secureMode);
+          });
+        });
       } else {
         userList.innerHTML = '<p>Brak użytkowników do wyświetlenia.</p>';
       }
@@ -183,6 +190,40 @@ function register(secureMode) {
     .catch(function(error) {
       document.getElementById('message').innerHTML = `<div class="message-bar-failed">Wystąpił błąd podczas rejestracji!</div>`;
     }); 
+  });
+}
+
+function showLogs(username, secureMode) {
+  const baseUrl = secureMode ? 'https://127.0.0.1:8000/user' : 'http://127.0.0.1:8000/user';
+  const popup = document.getElementById('logPopup');
+  const logContent = document.getElementById('logContent');
+  const closePopup = document.getElementById('closePopup');
+
+
+  popup.style.display = 'block';
+
+  axios.get(`${baseUrl}/logs/${username}.txt`)
+    .then(function (response) {
+      logContent.innerHTML = `<div class="popupBar">Logi użytkownika <b>${username}</b></div>`;
+      logContent.innerHTML += `<pre class="popupLogs">${response.data}</pre>`;
+    })
+    .catch(function (error) {
+      logContent.innerHTML = `<div class="popupBar">Logi użytkownika <b>${username}</b></div>`;
+      logContent.innerHTML += '<pre class="popupLogs">Nie udało się wczytać logów użytkownika.</pre>';
+    });
+
+  closePopup.addEventListener('click', function () {
+    popup.style.display = 'none';
+    logContent.innerHTML = `<div class="popupBar">Logi użytkownika <b>${username}</b></div>`;
+      logContent.innerHTML += '<pre class="popupLogs">Logi użytkownika wczytywane...</pre>';
+  });
+
+  window.addEventListener('click', function (event) {
+    if (event.target === popup) {
+      popup.style.display = 'none';
+      logContent.innerHTML = `<div class="popupBar">Logi użytkownika <b>${username}</b></div>`;
+      logContent.innerHTML += '<pre class="popupLogs">Logi użytkownika wczytywane...</pre>';
+    }
   });
 }
 
