@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   let secureMode = false;
-
   const page = window.location.pathname.split('/').pop();
-
-  
 
   axios.get('https://127.0.0.1:8000/user/secure-mode') 
     .then(function (response) {
@@ -12,7 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
         case 'index.html':
           app(secureMode);
           break;
-    
+        case 'login.html':
+          login(secureMode);
+          break;
         case 'register.html':
           register(secureMode);
           break;
@@ -27,7 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
         case 'index.html':
           app(secureMode);
           break;
-    
+        case 'login.html':
+          login(secureMode);
+          break;
         case 'register.html':
           register(secureMode);
           break;
@@ -42,28 +43,49 @@ function app(secureMode) {
   console.log(secureMode ? 'Tryb bezpieczny włączony' : 'Tryb bezpieczny wyłączony');
   const baseUrl = secureMode ? 'https://127.0.0.1:8000/user' : 'http://127.0.0.1:8000/user';
 
-  document.getElementById('refreshCaptcha').addEventListener('click', function() {
-    generateCaptcha();
-  });
+  if (localStorage.getItem('isLoggedIn') === 'true') {
+    document.getElementById('welcomeBar').innerHTML = `
+      <div class="welcome-message">Witaj, ${localStorage.getItem('username')}!</div><br />
+    `;
+  } else {
+    window.location.href = 'login.html';
+    return;
+  }
 
   document.getElementById('logoutButton').addEventListener('click', function() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('username');
-    window.location.reload();
+    window.location.href = 'login.html';
+    return;
   });
 
-  if (localStorage.getItem('isLoggedIn') === 'true') {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('loginContent').style.display = 'block';
+  axios
+    .get(`${baseUrl}/users`)
+    .then(function (response) {
+      const users = response.data; 
+      const userList = document.getElementById('userList');
 
-    document.getElementById('data').innerHTML = `
-      <div class="welcome-message">Witaj, ${localStorage.getItem('username')}!</div><br />
-    `;
-    return;
-  } else {
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('loginContent').style.display = 'none';
-  }
+      if (users.length > 0) {
+        let userHTML = '<table class="listTable">';
+        userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
+        users.forEach(user => {
+          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>guzik</td></tr>`;
+        });
+        userHTML += '</table>';
+        userList.innerHTML = userHTML;
+      } else {
+        userList.innerHTML = '<p>Brak użytkowników do wyświetlenia.</p>';
+      }
+    })
+    .catch(function (error) {
+      console.error('Błąd podczas pobierania użytkowników:', error);
+      document.getElementById('userList').innerHTML = '<p>Wystąpił błąd podczas ładowania listy użytkowników.</p>';
+    });
+}
+
+
+function login(secureMode) {
+  const baseUrl = secureMode ? 'https://127.0.0.1:8000/user' : 'http://127.0.0.1:8000/user';
 
   if (secureMode) {
     document.getElementById('captchaContent').style.display = 'block';
@@ -71,6 +93,15 @@ function app(secureMode) {
   } else {
     document.getElementById('captchaContent').style.display = 'none';
   }
+
+  if (localStorage.getItem('isLoggedIn') === 'true') {
+    window.location.href = 'index.html';
+    return;
+  } 
+
+  document.getElementById('refreshCaptcha').addEventListener('click', function() {
+    generateCaptcha();
+  });
 
   document.getElementById('loginButton').addEventListener('click', function() {
     const username = document.getElementById('username').value;

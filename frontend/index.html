@@ -11,47 +11,16 @@
 <body>
   <div id="container">
     <div class="content">
-      
-      <!-- login -->
-      <form id="loginForm">
-        <div class="logoText">Vulnerable<br>Login<br>System</div>
-        <div class="bar">Logowanie</div>
-        <div id="message"></div>
-        <div class="form-group">
-          <label for="username">Nazwa użytkownika</label>
-          <input type="input" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Hasło</label>
-          <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-          <div id="captchaContent">
-            <div class="form-group2">
-              <label for="captcha">Przepisz kod z obrazka:</label>
-              <canvas id="captchaCanvas" ></canvas>
-            </div>
-            <div class="form-group">
-              <button type="button" id="refreshCaptcha">Odśwież</button>
-              <input type="text" id="captchaInput" name="captcha" required>
-            </div>
-          </div>
-        </div>
-        <button type="button" id="loginButton" class="form-group">Zaloguj</button>
-        <br />
-        <a href="register.html"><div class="button2">Rejestracja</div></a>
-      </form>
-      <!-- logged -->
-      <div id="loginContent">
-        <div class="loginContent">
-          <div class="logoText2">Vulnerable Login System</div>
-          <div class="welcomeBar">
-            <div id="data"></div>
-            <button id="logoutButton">Wyloguj</button>
-          </div>
-
-
-          
+      <div class="logoText2">Vulnerable Login System</div>
+      <div class="welcomeBar">
+        <div id="welcomeBar"></div>
+        <button id="logoutButton">Wyloguj</button>
+      </div>
+      <br />
+      <br />
+      <div class="bar2">Lista użytkowników</div>
+      <div class="listContent">
+        <div id="userList">
         </div>
       </div>
     </div>
