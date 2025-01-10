@@ -63,13 +63,14 @@ function app(secureMode) {
     .get(`${baseUrl}/users`)
     .then(function (response) {
       const users = response.data; 
+      console.log(response.data);
       const userList = document.getElementById('userList');
 
       if (users.length > 0) {
         let userHTML = '<table class="listTable">';
         userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
         users.forEach(user => {
-          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
+          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${escapeHTML(user.email)}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
         });
         userHTML += '</table>';
         userList.innerHTML = userHTML;
@@ -163,7 +164,7 @@ function register(secureMode) {
     const passwordConfirm = document.getElementById('passwordConfirm').value;
     const userCaptcha = document.getElementById('captchaInput').value;
 
-    if(!username || !email || !password || !passwordConfirm || !userCaptcha) {
+    if(!username || !email || !password || !passwordConfirm) {
       document.getElementById('message').innerHTML = `<div class="message-bar-failed">Musisz wypełnić wszystkie pola!</div>`;
       return;
     }
@@ -255,4 +256,17 @@ function generateCaptcha() {
     ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
     ctx.stroke();
   }
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, function (match) {
+    const escape = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return escape[match];
+  });
 }
