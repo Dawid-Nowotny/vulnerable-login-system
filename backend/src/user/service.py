@@ -1,7 +1,6 @@
 import asyncpg
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
-from passlib.context import CryptContext
 
 import os
 import re
@@ -11,14 +10,6 @@ from .schemas import UserCreate, UserLogin, UserResponse
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 USER_LOGS_DIR = os.path.join(BASE_DIR, "..\\user_logs")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
 
 async def _check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
     query = f"SELECT * FROM users WHERE username = '{user_data.username}' OR email = '{user_data.email}'"
@@ -32,10 +23,12 @@ async def _check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Con
         )
 
 async def register_user(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
-    hashed_password = hash_password(user_data.password)
     await _check_user_exists(user_data, conn)
-    query = f"INSERT INTO users (username, email, password) VALUES ('{user_data.username}', '{user_data.email}', '{hashed_password}')"
-        
+    query = f"""
+        INSERT INTO users (username, email, password) 
+        VALUES ('{user_data.username}', '{user_data.email}', '{user_data.password}')
+    """
+    
     try:
         await conn.execute(query)
     except Exception as e:
@@ -45,16 +38,20 @@ async def register_user(user_data: UserCreate, conn: asyncpg.connection.Connecti
         )
 
 async def login_user(user_data: UserLogin, conn: asyncpg.connection.Connection) -> tuple[str, str, str]:
-    query = f"SELECT * FROM users WHERE (username = '{user_data.username}' OR email = '{user_data.username}')"
+    query = f"""
+        SELECT * FROM users 
+        WHERE (username = '{user_data.username}' OR email = '{user_data.username}')
+        AND password = '{user_data.password}'
+    """
 
     user = await conn.fetchrow(query)
 
-    if not user or not verify_password(user_data.password, user['password']):
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nieprawidłowe dane logowania!"
         )
-    
+
     return user['id'], user['username'], user['email']
 
 async def get_all_users(conn: asyncpg.connection.Connection) -> list[UserResponse]:
@@ -75,10 +72,10 @@ def log_action(username: str, action: str, register: bool = False) -> None:
     if not sanitized_username:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nieprawidłowa nazwa użytkownika.")
     
+    log_file_path = os.path.join(USER_LOGS_DIR, f"{sanitized_username}.txt")
+
     if register:
         check_path(log_file_path)
-
-    log_file_path = os.path.join(USER_LOGS_DIR, f"{sanitized_username}.txt")
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"{timestamp} - {action}\n"

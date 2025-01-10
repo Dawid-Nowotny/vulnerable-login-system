@@ -18,6 +18,7 @@ async def register(user: UserCreate, conn = Depends(get_db_connection)):
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def login(user: UserLogin, conn = Depends(get_db_connection)):
     id, username, email = await login_user(user, conn)
+    print(username, email)
     log_action(username, "Użytkownik zalogowany")
 
     return {
