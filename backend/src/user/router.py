@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.responses import FileResponse
 
 from .schemas import UserCreate, UserLogin, UserResponse
 from .service import register_user, login_user, get_all_users, log_action, get_user_log

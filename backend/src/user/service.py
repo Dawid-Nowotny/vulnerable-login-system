@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from passlib.context import CryptContext
 
 import os
+import re
 from datetime import datetime
 
 from .schemas import UserCreate, UserLogin, UserResponse
@@ -19,7 +20,7 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-async def check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
+async def _check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
     query = f"SELECT * FROM users WHERE username = '{user_data.username}' OR email = '{user_data.email}'"
     
     user = await conn.fetchrow(query)
@@ -32,7 +33,7 @@ async def check_user_exists(user_data: UserCreate, conn: asyncpg.connection.Conn
 
 async def register_user(user_data: UserCreate, conn: asyncpg.connection.Connection) -> None:
     hashed_password = hash_password(user_data.password)
-    await check_user_exists(user_data, conn)
+    await _check_user_exists(user_data, conn)
     query = f"INSERT INTO users (username, email, password) VALUES ('{user_data.username}', '{user_data.email}', '{hashed_password}')"
         
     try:
@@ -61,8 +62,20 @@ async def get_all_users(conn: asyncpg.connection.Connection) -> list[UserRespons
     users = await conn.fetch(query)
     return [UserResponse(id=user['id'], username=user['username'], email=user['email']) for user in users]
 
+def _sanitize_username(username: str) -> str:
+    return re.sub(r'[^a-zA-Z0-9_-]', '', username)
+
 def log_action(username: str, action: str) -> None:
-    log_file_path = os.path.join(USER_LOGS_DIR, f"{username}.txt")
+    sanitized_username = _sanitize_username(username)
+
+    if not sanitized_username:
+        raise HTTPException(status_code=400, detail="Nieprawidłowa nazwa użytkownika.")
+
+    log_file_path = os.path.join(USER_LOGS_DIR, f"{sanitized_username}.txt")
+
+    if os.path.exists(log_file_path):
+        raise HTTPException(status_code=400, detail="Taka nazwa użytkownika lub email juz istnieje.")
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"{timestamp} - {action}\n"
 
@@ -73,5 +86,5 @@ def get_user_log(filename: str) -> FileResponse:
     file_path = os.path.join(USER_LOGS_DIR, filename)
     print(file_path)
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plik nie znaleziony")
     return FileResponse(file_path)

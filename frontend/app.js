@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let secureMode = false;
   const page = window.location.pathname.split('/').pop();
 
-  axios.get('https://127.0.0.1:8000/user/secure-mode') 
+  axios.get('https://127.0.0.1:8000/system-config/secure-mode') 
     .then(function (response) {
       secureMode = response.data.secure_mode;
       switch (page) {
