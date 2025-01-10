@@ -65,16 +65,20 @@ async def get_all_users(conn: asyncpg.connection.Connection) -> list[UserRespons
 def _sanitize_username(username: str) -> str:
     return re.sub(r'[^a-zA-Z0-9_-]', '', username)
 
-def log_action(username: str, action: str) -> None:
+def check_path(log_file_path: str) -> bool:
+    if os.path.exists(log_file_path):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Taka nazwa użytkownika lub email juz istnieje.")
+
+def log_action(username: str, action: str, register: bool = False) -> None:
     sanitized_username = _sanitize_username(username)
 
     if not sanitized_username:
-        raise HTTPException(status_code=400, detail="Nieprawidłowa nazwa użytkownika.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nieprawidłowa nazwa użytkownika.")
+    
+    if register:
+        check_path(log_file_path)
 
     log_file_path = os.path.join(USER_LOGS_DIR, f"{sanitized_username}.txt")
-
-    if os.path.exists(log_file_path):
-        raise HTTPException(status_code=400, detail="Taka nazwa użytkownika lub email juz istnieje.")
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"{timestamp} - {action}\n"

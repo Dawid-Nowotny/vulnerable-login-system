@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate, conn = Depends(get_db_connection)):
     await register_user(user, conn)
-    log_action(user.username, "Użytkownik zarejestrowany")
+    log_action(user.username, "Użytkownik zarejestrowany", True)
 
     return {
         "message": "Użytkownik pomyślnie zarejestrowany."
