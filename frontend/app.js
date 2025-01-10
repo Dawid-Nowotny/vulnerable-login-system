@@ -70,9 +70,12 @@ function app(secureMode) {
         let userHTML = '<table class="listTable">';
         userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
         users.forEach(user => {
-          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${escapeHTML(user.email)}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
+          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
         });
         userHTML += '</table>';
+        
+
+        
         userList.innerHTML = userHTML;
 
         document.querySelectorAll('.logButton').forEach(button => {

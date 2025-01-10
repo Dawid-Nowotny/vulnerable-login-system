@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 if get_secure_mode():
-    #app.add_middleware(SecurityHeadersProtectionMiddleware)
+    app.add_middleware(SecurityHeadersProtectionMiddleware)
     app.add_middleware(InputSanitizationMiddleware)
     app.add_middleware(PathTraversalProtectionMiddleware)
 
