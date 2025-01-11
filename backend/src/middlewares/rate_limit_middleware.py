@@ -1,4 +1,4 @@
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from time import time
@@ -21,7 +21,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ]
 
         if len(request_counts[client_ip]) >= RATE_LIMIT:
-            raise HTTPException(status_code=429, detail="Zbyt wiele żądań. Spróbuj ponownie później.")
+            raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Zbyt wiele żądań. Spróbuj ponownie później.")
 
         request_counts[client_ip].append(current_time)
 
