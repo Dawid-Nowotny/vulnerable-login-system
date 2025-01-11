@@ -8,7 +8,7 @@ from config import get_secure_mode
 from middlewares.input_sanitization_middleware import InputSanitizationMiddleware
 from middlewares.security_headers_protection_middleware import SecurityHeadersProtectionMiddleware
 from middlewares.path_traversal_protection_middleware import PathTraversalProtectionMiddleware
-from backend.src.middlewares.rate_limit_middleware import RateLimitMiddleware
+from middlewares.rate_limit_middleware import RateLimitMiddleware
 
 app = FastAPI()
 
