@@ -85,7 +85,6 @@ def log_action(username: str, action: str, register: bool = False) -> None:
 
 def get_user_log(filename: str) -> FileResponse:
     file_path = os.path.join(USER_LOGS_DIR, filename)
-    print(file_path)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plik nie znaleziony")
     return FileResponse(file_path)

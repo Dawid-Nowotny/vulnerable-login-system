@@ -16,8 +16,6 @@ class PathTraversalProtectionMiddleware(BaseHTTPMiddleware):
                     status_code=400, detail="Nieprawidłowa nazwa pliku. Wykryto potencjalne przekroczenie ścieżki."
                 )
 
-            print(f"Sprawdzany plik: {filename}")
-
             file_path = os.path.abspath(os.path.join(USER_LOGS_DIR, filename))
             if not file_path.startswith(os.path.abspath(USER_LOGS_DIR)):
                 raise HTTPException(
