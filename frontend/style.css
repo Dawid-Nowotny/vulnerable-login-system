@@ -53,6 +53,10 @@ a, a:link, a:hover, a:active {
     width:100%;
  }
 
+ #captchaContent {
+    display: none;
+ }
+
  
  @media only screen and (max-width: 768px) {
     #container {
