@@ -30,6 +30,6 @@ async def login(user: UserLogin, conn = Depends(get_db_connection)):
 async def list_users(conn=Depends(get_db_connection)):
     return await get_all_users(conn)
 
-@router.get("/logs/{filename}", status_code=status.HTTP_200_OK)
-async def get_logs(filename: str):
-    return get_user_log(filename)
+@router.get("/logs/{path:path}", status_code=status.HTTP_200_OK)
+async def get_logs(path: str):
+    return get_user_log(path)
