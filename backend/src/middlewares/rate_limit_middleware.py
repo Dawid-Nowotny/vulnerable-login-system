@@ -3,7 +3,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from time import time
 
-RATE_LIMIT = 5
+RATE_LIMIT = 1000
 TIME_WINDOW = 60
 request_counts = {}
 
