@@ -67,16 +67,24 @@ function app(secureMode) {
       const userList = document.getElementById('userList');
 
       if (users.length > 0) {
-        let userHTML = '<table class="listTable">';
-        userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
-        users.forEach(user => {
-          userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
+        if (secureMode) { 
+          let userHTML = '<table class="listTable">';
+          userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
+          users.forEach(user => {
+            userHTML += `<tr class="listBar"><td>${escapeHTML(user.id)}</td><td>${escapeHTML(user.username)}</td><td>${escapeHTML(user.email)}</td><td><button class="logButton" data-username="${escapeHTML(user.username)}">Pokaż logi</button></td></tr>`;
+          });
+          userHTML += '</table>';
+          userList.innerHTML = userHTML;
+        } else {
+          let userHTML = '<table class="listTable">';
+          userHTML += `<tr class="listMainBar"><td>Id użytkownika</td><td>Nazwa użytkownika</td><td>Adres email użytkownika</td><td>Opcje</td></tr>`;
+          users.forEach(user => {
+            userHTML += `<tr class="listBar"><td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td><button class="logButton" data-username="${user.username}">Pokaż logi</button></td></tr>`;
+          });
+          userHTML += '</table>';
+          $('#userList').html(userHTML);
+        }
         
-        });
-        userHTML += '</table>';
-        
-        $('#userList').html(userHTML);
-
         document.querySelectorAll('.logButton').forEach(button => {
           button.addEventListener('click', function () {
             const username = this.getAttribute('data-username');
@@ -261,7 +269,7 @@ function generateCaptcha() {
 }
 
 function escapeHTML(str) {
-  return str.replace(/[&<>"']/g, function (match) {
+  return String(str).replace(/[&<>"']/g, function (match) {
     const escape = {
       '&': '&amp;',
       '<': '&lt;',
