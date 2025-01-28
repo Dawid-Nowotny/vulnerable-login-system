@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>Vulnerable login system</title>
+</head>
+<body>
+  <div id="container">
+    <div class="content">
+      <form id="loginForm">
+        <div class="logoText">Vulnerable<br>Login<br>System</div>
+        <div class="bar">Logowanie</div>
+        <div id="message"></div>
+        <div class="form-group">
+          <label for="username">Nazwa użytkownika</label>
+          <input type="input" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Hasło</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+          <div id="captchaContent">
+            <div class="form-group2">
+              <label for="captcha">Przepisz kod z obrazka:</label>
+              <canvas id="captchaCanvas" ></canvas>
+            </div>
+            <div class="form-group">
+              <button type="button" id="refreshCaptcha">Odśwież</button>
+              <input type="text" id="captchaInput" name="captcha" required>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="loginButton" class="form-group">Zaloguj</button>
+        <br />
+        <a href="register.html"><div class="button2">Rejestracja</div></a>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

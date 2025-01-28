@@ -4,21 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
   <title>Vulnerable login system</title>
 </head>
 <body>
-  <h1>Logowanie</h1>
-  <form id="loginForm">
-    <label for="email">Email:</label><br>
-    <input type="input" id="email" name="email" required><br><br>
-    
-    <label for="password">Hasło:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
-    
-    <button type="button" id="loginButton">Zaloguj</button>
-  </form>
-  <div id="data"></div>
-  <div id="message"></div>
+  <div id="logPopup" class="popup">
+    <div class="popupContent">
+      <span id="closePopup" class="closeButton">&times;</span>
+      <div id="logContent">
+        <pre class="popupLogs">Logi użytkownika wczytywane...</pre>
+      </div>
+    </div>
+  </div>
+  <div id="container">
+    <div class="content">
+      <div class="logoText2">Vulnerable Login System</div>
+      <div class="welcomeBar">
+        <div id="welcomeBar"></div>
+        <button id="logoutButton">Wyloguj</button>
+      </div>
+      <br />
+      <br />
+      <div class="bar2">Lista użytkowników</div>
+      <div class="listContent">
+        <div id="userList">
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
